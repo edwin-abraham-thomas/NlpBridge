@@ -22,9 +22,8 @@ namespace NlpBridge
 
         public async Task<TResponse> ExecuteAsync(TRequest request)
         {
-            //ExpressionHelpers.SetValue(request, "new prompt value", _config.PromptProperty);
-            var value = ExpressionHelpers.GetValue(request, _config.PromptProperty);
-            //Console.WriteLine(JsonConvert.SerializeObject(request, Formatting.Indented));
+            ExpressionHelpers.SetValue(request, _config.PromptProperty, "Hi how are you. This is an updated request");
+            Console.WriteLine(JsonConvert.SerializeObject(request, Formatting.Indented));
 
             var httpClient = _httpClientFactory.CreateClient(Constants.NlpServiceHttpClientName);
 
@@ -32,8 +31,6 @@ namespace NlpBridge
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
-
-            //Console.WriteLine(JsonConvert.SerializeObject(response.ReasonPhrase, Formatting.Indented));
             var responseContent = await response.Content.ReadFromJsonAsync<TResponse>();
 
             return responseContent;

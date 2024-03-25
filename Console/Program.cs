@@ -18,13 +18,6 @@ internal class Program
         var host = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
             {
-                //services.RegisterNlpBridge<Request, Response>(
-                //    context.Configuration.GetValue<string>("NlpApiUrl"),
-                //    new Dictionary<string, string>
-                //    {
-                //        { context.Configuration.GetValue<string>("NlpApiKeyName"), context.Configuration.GetValue<string>("NlpApiKey") }
-                //    }
-                //    );
                 services.RegisterNlpBridge<Request, Response>(new NlpBridge.Models.Config<Request>
                 {
                     NlpServiceUrl = context.Configuration.GetValue<string>("NlpApiUrl"),

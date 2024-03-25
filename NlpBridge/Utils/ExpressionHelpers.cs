@@ -13,32 +13,19 @@ namespace NlpBridge.Utils
             return getter(obj);
         }
 
-        public static TObject SetValue<TObject, TPropertyType>(TObject obj, TPropertyType value, Expression<Func<TObject, TPropertyType>> propertyExpression)
+        public static void SetValue<TObject, TProperty>(TObject obj, Expression<Func<TObject, TProperty>> expression, TProperty value)
         {
-            //var memberExpression = (MemberExpression)propertyExpression.Body;
-            //var propertyInfo = (System.Reflection.PropertyInfo)memberExpression.Member;
+            ParameterExpression valueParameterExpression = Expression.Parameter(typeof(TProperty));
+            Expression targetExpression = expression.Body is UnaryExpression ? ((UnaryExpression)expression.Body).Operand : expression.Body;
 
-            //var instanceParam = Expression.Parameter(typeof(TObject), "instance");
-            //var valueParam = Expression.Parameter(typeof(TPropertyType), "value");
+            var assign = Expression.Lambda<Action<TObject, TProperty>>
+                        (
+                            Expression.Assign(targetExpression, Expression.Convert(valueParameterExpression, targetExpression.Type)),
+                            expression.Parameters.Single(),
+                            valueParameterExpression
+                        );
 
-            //var assignment = Expression.Assign(Expression.Property(instanceParam, propertyInfo), valueParam);
-
-            //var setterLambda = Expression.Lambda<Action<TObject, TPropertyType>>(assignment, instanceParam, valueParam);
-            //var setter = setterLambda.Compile();
-
-            //setter(obj, value);
-
-            var memberSelectorExpression = propertyExpression.Body as MemberExpression;
-            if (memberSelectorExpression != null)
-            {
-                var property = memberSelectorExpression.Member as PropertyInfo;
-                if (property != null)
-                {
-                    property.SetValue(obj, value, null);
-                }
-            }
-
-            return obj;
+            assign.Compile().Invoke(obj, value);
         }
     }
 }
