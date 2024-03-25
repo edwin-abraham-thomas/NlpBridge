@@ -7,10 +7,12 @@ namespace NlpBridge.DependencyInjection
 {
     public static class ServiceRegistrations
     {
-        public static IServiceCollection RegisterNlpBridge<TRequest, TResponse>(this IServiceCollection services,
-            Config<TRequest> config)
-            where TRequest : new()
-            where TResponse : new()
+        public static IServiceCollection RegisterNlpBridge<TNlpRequest, TNlpResponse, TClientRequest, TClientResponse>(this IServiceCollection services,
+            Config<TNlpRequest, TNlpResponse> config)
+            where TNlpRequest : new()
+            where TNlpResponse : new()
+            where TClientRequest : new()
+            where TClientResponse : new()
         {
             var uriBuilder = new UriBuilder(config.NlpServiceUrl);
             var query = HttpUtility.ParseQueryString(uriBuilder.Query);
@@ -30,11 +32,10 @@ namespace NlpBridge.DependencyInjection
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             });
 
-            services.AddScoped(typeof(IExecutor<,>), typeof(Executor<,>));
+            services.AddScoped(typeof(IExecutor<,,,>), typeof(Executor<,,,>));
             services.AddSingleton(config);
 
             return services;
         }
     }
 }
- 

@@ -1,7 +1,5 @@
 ﻿
 using Console;
-using Console.Models.Request;
-using Console.Models.Response;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -18,15 +16,24 @@ internal class Program
         var host = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
             {
-                services.RegisterNlpBridge<Request, Response>(new NlpBridge.Models.Config<Request>
-                {
-                    NlpServiceUrl = context.Configuration.GetValue<string>("NlpApiUrl"),
-                    NlpUrlParams = new Dictionary<string, string>
+                //NlpBridge Registration
+                services.RegisterNlpBridge<
+                    Console.Models.Nlp.Request.Request,
+                    Console.Models.Nlp.Response.Response,
+                    Console.Models.Client.Request,
+                    Console.Models.Client.Response>(
+                    new NlpBridge.Models.Config<Console.Models.Nlp.Request.Request, Console.Models.Nlp.Response.Response>
                     {
-                        { context.Configuration.GetValue<string>("NlpApiKeyName"), context.Configuration.GetValue<string>("NlpApiKey") }
-                    },
-                    PromptProperty = x => x.Contents[0].Parts[0].Text,
-                });
+                        NlpServiceUrl = context.Configuration.GetValue<string>("NlpApiUrl"),
+                        NlpUrlParams = new Dictionary<string, string>
+                        {
+                            { context.Configuration.GetValue<string>("NlpApiKeyName"), context.Configuration.GetValue<string>("NlpApiKey") }
+                        },
+                        PromptProperty = x => x.Contents[0].Parts[0].Text,
+                        ResponseTextProperty = x => x.Candidates[0].Content.Parts[0].Text,
+                        DefaultRequest = defaultRequest
+                    });
+
                 services.AddSingleton<IService, Service>();
             })
             .Build();
@@ -42,4 +49,18 @@ internal class Program
             .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
             .AddEnvironmentVariables();
     }
+
+    private static readonly Console.Models.Nlp.Request.Request defaultRequest = new Console.Models.Nlp.Request.Request
+    {
+        Contents = new List<Console.Models.Nlp.Request.Content>
+                            {
+                                new Console.Models.Nlp.Request.Content
+                                {
+                                    Parts = new List<Console.Models.Nlp.Request.Part>
+                                    {
+                                        new Console.Models.Nlp.Request.Part()
+                                    }
+                                }
+                            }
+    };
 }

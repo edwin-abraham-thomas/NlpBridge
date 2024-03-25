@@ -1,36 +1,27 @@
-﻿using Console.Models.Request;
-using Console.Models.Response;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using NlpBridge;
+using clientModel = Console.Models.Client;
+using nlpModel = Console.Models.Nlp;
+
 
 namespace Console
 {
     public class Service : IService
     {
-        private readonly IExecutor<Request, Response> _executor;
+        private readonly IExecutor<clientModel.Request, clientModel.Response, nlpModel.Request.Request, nlpModel.Response.Response> _executor;
 
-        public Service(IExecutor<Request, Response> executor)
+        public Service(IExecutor<clientModel.Request, clientModel.Response, nlpModel.Request.Request, nlpModel.Response.Response> executor)
         {
             this._executor = executor;
         }
 
         public async Task RunAsync()
         {
-            var request = new Request
+            var request = new clientModel.Request
             {
-                Contents = new List<Models.Request.Content>
-                {
-                    new Models.Request.Content
-                    {
-                        Parts = new List<Models.Request.Part> 
-                        {
-                            new Models.Request.Part
-                            {
-                                Text = "Hi, how are you"
-                            }
-                        }
-                    }
-                }
+                Name = "Edwin",
+                Email = "edwin@gmail.com",
+                PhoneNumber = "1234567890"
             };
 
             var response = await _executor.ExecuteAsync(request);

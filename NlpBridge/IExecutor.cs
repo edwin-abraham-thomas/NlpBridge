@@ -1,7 +1,11 @@
 ﻿namespace NlpBridge
 {
-    public interface IExecutor<TRequest, TResponse> where TRequest : new() where TResponse : new()
+    public interface IExecutor<TClientRequest, TClientResponse, TNlpRequest, TNlpResponse>
+        where TClientRequest : new()
+        where TClientResponse : new()
+        where TNlpRequest : new()
+        where TNlpResponse : new()
     {
-        public Task<TResponse> ExecuteAsync(TRequest request);
+        public Task<TClientResponse> ExecuteAsync(TClientRequest request);
     }
 }

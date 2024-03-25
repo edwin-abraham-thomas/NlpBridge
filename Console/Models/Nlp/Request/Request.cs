@@ -1,4 +1,4 @@
-﻿namespace Console.Models.Request
+﻿namespace Console.Models.Nlp.Request
 {
     public class Request
     {

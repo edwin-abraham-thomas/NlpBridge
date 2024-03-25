@@ -1,4 +1,4 @@
-﻿namespace Console.Models.Response
+﻿namespace Console.Models.Nlp.Response
 {
     public class Response
     {
