@@ -23,24 +23,14 @@ namespace NlpBridge
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<TClientResponse> ExecuteAsync(TClientRequest request)
+        public async Task<TClientResponse> ExecuteAsync(TClientRequest request, string prompt = null)
         {
             // Build NLP prompt
-            JSchemaGenerator generator = new JSchemaGenerator();
-            JSchema schema = generator.Generate(typeof(TClientResponse));
-
-
-            var prompt = $"Act as a tightly typed llm and respond in json format following below json schema structure: \n" +
-                $"{schema}" +
-                $"\n" +
-                $"Use ``` as delimiters around the json response like ```{{}}```" +
-                $"\n" +
-                $"Build a fancy username and password using the provided information below" +
-                $"{JsonConvert.SerializeObject(request)}";
+            var constructedPrompt = ConstructPrompt(prompt, request);
 
             // Assign to NLP request
-            ExpressionHelpers.SetValue(_config.DefaultRequest, _config.PromptProperty, prompt);
-            Console.WriteLine(JsonConvert.SerializeObject(_config.DefaultRequest, Formatting.Indented));
+            ExpressionHelpers.SetValue(_config.DefaultRequest, _config.PromptProperty, constructedPrompt);
+            //Console.WriteLine(JsonConvert.SerializeObject(_config.DefaultRequest, Formatting.Indented));
 
             var httpClient = _httpClientFactory.CreateClient(Constants.NlpServiceHttpClientName);
 
@@ -56,7 +46,7 @@ namespace NlpBridge
 
             // Extract response text
             var apiResponseText = ExpressionHelpers.GetValue(responseContent, _config.ResponseTextProperty);
-
+            //Console.WriteLine(apiResponseText);
             // Parse response text to client response object
             int startIndex = apiResponseText.IndexOf("```") + 3; // Adding 3 to skip the triple backticks
             int endIndex = apiResponseText.LastIndexOf("```");
@@ -64,6 +54,22 @@ namespace NlpBridge
             var clientResponse = JsonConvert.DeserializeObject<TClientResponse>(jsonObjectString);
 
             return clientResponse;
+        }
+
+        private string ConstructPrompt(string prompt, TClientRequest request)
+        {
+
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(TClientResponse));
+
+            var constructedPrompt = $"Act as a strictly typed llm and respond in json format following below json schema structure: \n" +
+                $"{schema}" +
+                $"\n" +
+                $"Use ``` as delimiters around the json response like ```{{}}```" +
+                $"{prompt} \n\n" +
+                $"{JsonConvert.SerializeObject(request)}";
+
+            return constructedPrompt;
         }
     }
 }

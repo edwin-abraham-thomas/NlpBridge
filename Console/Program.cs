@@ -20,8 +20,8 @@ internal class Program
                 services.RegisterNlpBridge<
                     Console.Models.Nlp.Request.Request,
                     Console.Models.Nlp.Response.Response,
-                    Console.Models.Client.Request,
-                    Console.Models.Client.Response>(
+                    Console.Models.Client.Person,
+                    Console.Models.Client.Credentials>(
                     new NlpBridge.Models.Config<Console.Models.Nlp.Request.Request, Console.Models.Nlp.Response.Response>
                     {
                         NlpServiceUrl = context.Configuration.GetValue<string>("NlpApiUrl"),

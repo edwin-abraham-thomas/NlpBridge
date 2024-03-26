@@ -6,6 +6,6 @@
         where TNlpRequest : new()
         where TNlpResponse : new()
     {
-        public Task<TClientResponse> ExecuteAsync(TClientRequest request);
+        public Task<TClientResponse> ExecuteAsync(TClientRequest request, string prompt = null);
     }
 }
