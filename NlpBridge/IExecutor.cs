@@ -1,4 +1,6 @@
-﻿namespace NlpBridge
+﻿using NlpBridge.Models;
+
+namespace NlpBridge
 {
     public interface IExecutor<TClientRequest, TClientResponse, TNlpRequest, TNlpResponse>
         where TClientRequest : new()
@@ -6,6 +8,6 @@
         where TNlpRequest : new()
         where TNlpResponse : new()
     {
-        public Task<TClientResponse> ExecuteAsync(TClientRequest request, string prompt = null);
+        public Task<ExecutionResult<TClientResponse>> ExecuteAsync(TClientRequest request, string prompt = null);
     }
 }

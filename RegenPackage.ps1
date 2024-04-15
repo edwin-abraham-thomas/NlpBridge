@@ -1,0 +1,1 @@
+dotnet pack .\NlpBridge\NlpBridge.csproj -c Release -o C:\edwinat\nuget-feed -p:PackageVersion=1.0.0

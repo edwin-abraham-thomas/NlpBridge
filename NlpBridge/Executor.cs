@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Schema;
 using Newtonsoft.Json.Schema.Generation;
 using NlpBridge.Models;
@@ -16,21 +17,27 @@ namespace NlpBridge
     {
         private readonly Config<TNlpRequest, TNlpResponse> _config;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ILogger<Executor<TClientRequest, TClientResponse, TNlpRequest, TNlpResponse>> _logger;
 
-        public Executor(Config<TNlpRequest, TNlpResponse> config, IHttpClientFactory httpClientFactory)
+        public Executor(Config<TNlpRequest, 
+            TNlpResponse> config, 
+            IHttpClientFactory httpClientFactory, 
+            ILogger<Executor<TClientRequest, TClientResponse, TNlpRequest, TNlpResponse>> logger)
         {
             _config = config;
             _httpClientFactory = httpClientFactory;
+            _logger = logger;
         }
 
-        public async Task<TClientResponse> ExecuteAsync(TClientRequest request, string prompt = null)
+        public async Task<ExecutionResult<TClientResponse>> ExecuteAsync(TClientRequest request, string prompt = null)
         {
             // Build NLP prompt
             var constructedPrompt = ConstructPrompt(prompt, request);
+            _logger.LogTrace("Constructed prompt: {ConstructedPrompt}", constructedPrompt);
 
             // Assign to NLP request
             ExpressionHelpers.SetValue(_config.DefaultRequest, _config.PromptProperty, constructedPrompt);
-            //Console.WriteLine(JsonConvert.SerializeObject(_config.DefaultRequest, Formatting.Indented));
+            _logger.LogTrace("Nlp request: {NlpRequest}", JsonConvert.SerializeObject(_config.DefaultRequest, Formatting.Indented));
 
             var httpClient = _httpClientFactory.CreateClient(Constants.NlpServiceHttpClientName);
 
@@ -46,14 +53,24 @@ namespace NlpBridge
 
             // Extract response text
             var apiResponseText = ExpressionHelpers.GetValue(responseContent, _config.ResponseTextProperty);
-            //Console.WriteLine(apiResponseText);
-            // Parse response text to client response object
-            int startIndex = apiResponseText.IndexOf("```") + 3; // Adding 3 to skip the triple backticks
-            int endIndex = apiResponseText.LastIndexOf("```");
-            string jsonObjectString = apiResponseText.Substring(startIndex, endIndex - startIndex);
-            var clientResponse = JsonConvert.DeserializeObject<TClientResponse>(jsonObjectString);
+            _logger.LogTrace("Nlp response: {NlpResponse}", apiResponseText);
 
-            return clientResponse;
+            // Parse response text to client response object
+            try
+            {
+
+                int startIndex = apiResponseText.IndexOf("```") + 3; // Adding 3 to skip the triple backticks
+                int endIndex = apiResponseText.LastIndexOf("```");
+                string jsonObjectString = apiResponseText.Substring(startIndex, endIndex - startIndex);
+                var clientResponse = JsonConvert.DeserializeObject<TClientResponse>(jsonObjectString);
+
+                return ExecutionResult<TClientResponse>.Success(clientResponse);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to pass nlp response");
+                return ExecutionResult<TClientResponse>.Failure("Failed to pass nlp response", ex);
+            }
         }
 
         private string ConstructPrompt(string prompt, TClientRequest request)

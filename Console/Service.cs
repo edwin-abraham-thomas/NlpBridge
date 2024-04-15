@@ -23,7 +23,7 @@ namespace Console
                 Email = "edwin@gmail.com",
                 PhoneNumber = "1234567890"
             };
-            var prompt = "Build a fancy username and password using the provided information below";
+            var prompt = "Build a unique username and password using the provided information below";
             var response = await _executor.ExecuteAsync(request, prompt);
             System.Console.WriteLine(JsonConvert.SerializeObject(response, Formatting.Indented));
         }

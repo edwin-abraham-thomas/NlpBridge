@@ -5,6 +5,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UserSecretsId>13117fb1-def7-4683-b1f4-b08187e1409f</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

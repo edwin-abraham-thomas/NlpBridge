@@ -53,14 +53,14 @@ internal class Program
     private static readonly Console.Models.Nlp.Request.Request defaultRequest = new Console.Models.Nlp.Request.Request
     {
         Contents = new List<Console.Models.Nlp.Request.Content>
-                            {
-                                new Console.Models.Nlp.Request.Content
-                                {
-                                    Parts = new List<Console.Models.Nlp.Request.Part>
-                                    {
-                                        new Console.Models.Nlp.Request.Part()
-                                    }
-                                }
-                            }
+        {
+            new Console.Models.Nlp.Request.Content
+            {
+                Parts = new List<Console.Models.Nlp.Request.Part>
+                {
+                    new Console.Models.Nlp.Request.Part()
+                }
+            }
+        }
     };
 }
